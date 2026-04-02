@@ -1,0 +1,15 @@
+{
+  "name": "cupido-catolico-2.0",
+  "version": "1.0.0",
+  "description": "Aplicativo de relacionamentos católico com Supabase",
+  "main": "www/index.html",
+  "scripts": {
+    "start": "npx serve www"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.99.2"
+  }
+}

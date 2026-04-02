@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Influenciadores | Cupido Católico</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --catedral-red: #720917;
+            --gold-noble: #D4AF37;
+            --text-main: #2C1810;
+            --bg-light: #FDFCF9;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-light); color: var(--text-main); margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid var(--gold-noble); padding-bottom: 15px; }
+        h1 { color: var(--catedral-red); margin: 0; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-left: 5px solid var(--gold-noble); }
+        .stat-card h3 { margin: 0; font-size: 12px; text-transform: uppercase; color: var(--text-muted); }
+        .stat-card p { margin: 10px 0 0; font-size: 24px; font-weight: 800; color: var(--catedral-red); }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        th { background: var(--catedral-red); color: white; padding: 15px; text-align: left; }
+        td { padding: 15px; border-bottom: 1px solid #EEE; }
+        .pix-key { font-family: monospace; background: #F0F0F0; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .btn-refresh { background: var(--gold-noble); border: none; padding: 10px 20px; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .loading { text-align: center; padding: 50px; font-style: italic; opacity: 0.6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Relatório de Repasses</h1>
+            <button class="btn-refresh" onclick="loadReport()">
+                <i data-lucide="refresh-cw"></i> Atualizar
+            </button>
+        </header>        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total em Comissões</h3>
+                <p id="total-commissions">R$ 0,00</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total de Cadastros (Leads)</h3>
+                <p id="total-leads">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Influenciadores Ativos</h3>
+                <p id="total-influencers">0</p>
+            </div>
+        </div>
+
+        <div id="report-content">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Influenciador</th>
+                        <th>Cadastros (Leads)</th>
+                        <th>Vendas (Premium)</th>
+                        <th>Chave PIX</th>
+                        <th>Total a Pagar</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="report-table-body">
+                    <!-- Data here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://ahlgkhlnjcwmlbzfskoo.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFobGdraGxuamN3mxiemZza29vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MzA1NDQsImV4cCI6MjA4OTIwNjU0NH0.wfNUI0G9aFZuYat1qwg0muf8C-uV81b6PUj7CdMcJek';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function markAsPaid(influencerId, influencerName) {
+            if (!confirm(`Confirmar que você já enviou o PIX para ${influencerName}?\n\nIsso zerará as pendências deste influenciador no relatório.`)) return;
+            
+            try {
+                const { error } = await sb.from('subscriptions')
+                    .update({ 
+                        commission_paid: true, 
+                        commission_paid_at: new Date().toISOString() 
+                    })
+                    .eq('influencer_id', influencerId)
+                    .eq('commission_paid', false);
+                
+                if (error) throw error;
+                alert("Pagamento registrado com sucesso! 🙏");
+                loadReport();
+            } catch (err) {
+                console.error(err);
+                alert("Erro ao marcar como pago.");
+            }
+        }
+
+        async function loadReport() {
+            const body = document.getElementById('report-table-body');
+            body.innerHTML = '<tr><td colspan="6" class="loading">Buscando dados providenciais...</td></tr>';
+
+            try {
+                // 1. Buscar influenciadores
+                const { data: influencers } = await sb.from('influencers').select('*');
+                
+                // 2. Buscar assinaturas com comissão PENDENTE
+                const { data: subs } = await sb.from('subscriptions')
+                    .select('influencer_id, commission_value')
+                    .not('influencer_id', 'is', null)
+                    .eq('commission_paid', false);
+
+                // 3. Buscar todos os perfis vinculados a influenciadores (Leads)
+                const { data: profiles } = await sb.from('profiles')
+                    .select('referred_by_influencer_id')
+                    .not('referred_by_influencer_id', 'is', null);
+
+                let reportData = influencers.map(inf => {
+                    const infSubs = subs.filter(s => s.influencer_id === inf.id);
+                    const infLeads = profiles.filter(p => p.referred_by_influencer_id === inf.id);
+                    
+                    const totalSales = infSubs.length;
+                    const totalLeads = infLeads.length;
+                    const totalCommission = infSubs.reduce((acc, s) => acc + (Number(s.commission_value) || 0), 0);
+                    
+                    return { ...inf, totalSales, totalLeads, totalCommission };
+                });
+
+                // Filtrar apenas quem tem alguma atividade (Lead ou Venda)
+                reportData = reportData.filter(d => d.totalLeads > 0 || d.totalSales > 0);
+
+                // Renderizar
+                body.innerHTML = reportData.length ? reportData.map(d => `
+                    <tr>
+                        <td><strong>${d.name}</strong></td>
+                        <td><span style="color: var(--text-main); font-weight: bold;">${d.totalLeads}</span></td>
+                        <td>${d.totalSales}</td>
+                        <td><span class="pix-key">${d.pix_key}</span></td>
+                        <td style="color: var(--catedral-red); font-weight: bold;">R$ ${d.totalCommission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                        <td>
+                            <button class="btn-refresh" style="font-size: 11px; padding: 6px 10px;" onclick="markAsPaid('${d.id}', '${d.name}')">
+                                <i data-lucide="check-square"></i> Confirmar PIX
+                            </button>
+                        </td>
+                    </tr>
+                `).join('') : '<tr><td colspan="6" style="text-align:center; padding: 40px;">Nenhuma atividade de influenciadores ainda. 🙏</td></tr>';
+
+                // Atualizar Stats
+                document.getElementById('total-influencers').innerText = reportData.length;
+                document.getElementById('total-leads').innerText = profiles.length;
+                const grandTotal = reportData.reduce((acc, d) => acc + d.totalCommission, 0);
+                document.getElementById('total-commissions').innerText = `R$ ${grandTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+
+                lucide.createIcons();
+            } catch (err) {
+                console.error(err);
+                body.innerHTML = '<tr><td colspan="6" style="color: red; text-align:center;">Erro ao carregar relatório.</td></tr>';
+            }
+        }        }
+        }
+
+        loadReport();
+    </script>
+</body>
+</html>

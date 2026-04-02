@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Cupido Católico | Amor que nasce na Fé</title>
+  
+  <!-- Fontes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  
+  <!-- Ícones (Lucide) e Supabase -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.6/lottie.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Splash Screen -->
+  <div id="splash" class="splash-screen">
+    <img src="assets/cupid.png" alt="Cupido" style="width: 150px; height: 150px; margin-bottom: 20px;" />
+    <img src="assets/logo.png" alt="Cupido Católico" class="splash-logo" style="width: 100px; height: 100px;" />
+  </div>
+
+  <!-- Auth Screen -->
+  <div id="auth-screen" class="auth-screen hidden">
+    <div class="auth-card">
+      <h2 class="auth-title">Bem-vindo ao Amor em Cristo</h2>
+      <p class="auth-subtitle">Entre para encontrar sua alma gêmea católica.</p>
+      
+      <div class="auth-form">
+        <div class="input-group">
+          <i data-lucide="mail"></i>
+          <input type="email" id="email" placeholder="Seu e-mail" />
+        </div>
+        <div class="input-group">
+          <i data-lucide="lock"></i>
+          <input type="password" id="password" placeholder="Sua senha" />
+          <button type="button" id="btn-toggle-password" class="password-toggle">
+            <i data-lucide="eye"></i>
+          </button>
+        </div>
+        
+        <div id="auth-error-msg" class="auth-error hidden"></div>
+
+        <button id="btn-login" class="btn-primary">Entrar com Fé</button>
+        <button id="btn-register" class="btn-secondary">Criar conta nova</button>
+        
+        <div class="divider">
+          <span>ou</span>
+        </div>
+        
+        <button id="btn-google" class="btn-google">
+          <img src="https://www.google.com/favicon.ico" width="18" alt="Google" />
+          Entrar com Google
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-container hidden" id="main-app">
+    <!-- Header -->
+    <header class="header">
+      <button class="icon-btn" id="btn-goto-profile"><i data-lucide="user"></i></button>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <h1 class="logo-text" id="btn-goto-home" style="cursor:pointer">Cupido Católico</h1>
+        <button class="icon-btn-small" id="btn-open-filters"><i data-lucide="sliders-horizontal" style="width:16px;"></i></button>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="icon-btn" id="btn-goto-likes" style="position:relative">
+          <i data-lucide="heart"></i>
+          <span id="dot-likes" class="notification-dot hidden"></span>
+        </button>
+        <button class="icon-btn" id="btn-goto-messages" style="position:relative">
+          <i data-lucide="message-circle"></i>
+          <span id="dot-messages" class="notification-dot hidden"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- App Content (Discovery) -->
+    <main class="card-container view-section" id="discovery-view">
+      <div id="daily-saint-container"></div>
+      <!-- Cards will be injected here via JS -->
+    </main>
+
+    <!-- Messages / Matches View -->
+    <main class="messages-container view-section hidden" id="messages-view">
+      <div class="messages-header">
+        <h2 class="view-title">Conexões Providenciais</h2>
+        <p class="view-subtitle">Pessoas que compartilham da mesma Fé</p>
+      </div>
+      <div id="matches-list" class="matches-list">
+        <!-- Matches will be injected here via JS -->
+        <div class="empty-state">
+          <i data-lucide="message-square" style="width:40px; opacity:0.3"></i>
+          <p>Ainda não há conversas iniciadas.</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Who Liked Me View -->
+    <main class="likes-container view-section hidden" id="likes-view">
+      <div class="messages-header" style="background: linear-gradient(135deg, var(--gold-noble) 0%, var(--catedral-red) 100%); color: white; padding: 25px;">
+        <h2 class="view-title" style="color:white">Almas Interessadas</h2>
+        <p class="view-subtitle" style="color:rgba(255,255,255,0.8)">Pessoas que rezaram por um encontro com você</p>
+      </div>
+      <div id="likes-list" class="matches-list" style="padding: 20px;">
+        <!-- Likes will be injected here -->
+      </div>
+    </main>
+
+    <!-- Chat View -->
+    <main class="chat-container view-section hidden" id="chat-view">
+      <header class="chat-header" style="display:flex; align-items:center; gap:10px; padding:10px 15px;">
+        <button class="icon-btn" onclick="showView('messages')"><i data-lucide="arrow-left"></i></button>
+        <div class="chat-target-info" style="display:flex; align-items:center; gap:12px; flex:1;">
+          <div style="position:relative; flex-shrink:0; width:50px; height:50px;">
+            <div id="identity-photo-chat-header" class="match-item-photo match-avatar-div"></div>
+            <span id="chat-status-dot" class="status-indicator" style="position:absolute; bottom:0px; right:0px; border:2px solid white; width:14px; height:14px; z-index:11;"></span>
+          </div>
+          <div class="chat-text-container" style="display:flex; flex-direction:column; gap:2px; overflow:hidden;">
+            <h3 id="chat-target-name" class="chat-target-name" style="margin:0; font-size:16px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">...</h3>
+            <span id="chat-target-email" style="font-size:10px; opacity:0.6; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">...</span>
+          </div>
+        </div>
+        <button class="icon-btn-small" style="margin-left:auto; color:var(--text-muted);" onclick="openReportSystem()">
+          <i data-lucide="shield-alert" style="width:18px;"></i>
+        </button>
+      </header>
+      <div id="chat-messages" class="chat-messages">
+        <!-- Messages will be injected here -->
+      </div>
+      <div class="chat-icebreakers">
+        <button onclick="sendIcebreaker('Salve Maria! 🌹')">Salve Maria!</button>
+        <button onclick="sendIcebreaker('Paz e Bem! 🕊️')">Paz e Bem!</button>
+        <button onclick="sendIcebreaker('Deus te abençoe! 🙏')">Deus abençoe</button>
+      </div>
+      <div class="chat-footer">
+        <textarea id="chat-input" placeholder="Escreva uma mensagem de fé..." rows="1"></textarea>
+        <button id="btn-send-message" class="btn-send"><i data-lucide="send"></i></button>
+      </div>
+    </main>
+
+    <!-- Profile View -->
+    <main class="profile-container view-section hidden" id="profile-view">
+      <div class="profile-edit-header">
+        <div class="profile-photo-upload">
+          <div id="user-avatar" class="match-avatar-div" style="width:100%; height:100%; border-radius:18px;"></div>
+          <div class="main-photo-badge">Principal</div>
+          <button class="btn-edit-photo" onclick="triggerUpload(0)"><i data-lucide="camera"></i></button>
+        </div>
+        <div class="name-container">
+          <h2 class="user-display-name">Carregando...</h2>
+          <div id="premium-badge-profile" class="premium-badge-floating hidden">
+            <i data-lucide="shield-check"></i> <span>Premium</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Banner Premium Estilo Netflix -->
+      <div class="premium-banner" onclick="window.location.href='billing.html'">
+        <div class="premium-content">
+          <div class="premium-icon">
+            <i data-lucide="crown"></i>
+          </div>
+          <div class="premium-text">
+            <h4>Seja Premium</h4>
+            <p>Veja quem te curtiu e mude sua vida amorosa!</p>
+          </div>
+          <i data-lucide="chevron-right" class="arrow-icon"></i>
+        </div>
+      </div>
+
+      <!-- Galeria de Fotos (Destaque para até 10) -->
+      <div class="profile-section">
+        <h3 class="section-title"><i data-lucide="images"></i> Minha Galeria (Até 10 fotos)</h3>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Dica: Clique na foto para torná-la principal.</p>
+        <div class="photo-grid" id="photo-gallery">
+          <!-- Slots de 1 a 9 (a 0 é a principal acima) -->
+          <div class="photo-slot" onclick="triggerUpload(1)" data-index="1"><i data-lucide="plus"></i></div>
+          <div class="photo-slot" onclick="triggerUpload(2)" data-index="2"><i data-lucide="plus"></i></div>
+          <div class="photo-slot" onclick="triggerUpload(3)" data-index="3"><i data-lucide="plus"></i></div>
+          <div class="photo-slot" onclick="triggerUpload(4)" data-index="4"><i data-lucide="plus"></i></div>
+          <div class="photo-slot" onclick="triggerUpload(5)" data-index="5"><i data-lucide="plus"></i></div>
+          <div class="photo-slot" onclick="triggerUpload(6)" data-index="6"><i data-lucide="plus"></i></div>
+          <div class="photo-slot" onclick="triggerUpload(7)" data-index="7"><i data-lucide="plus"></i></div>
+          <div class="photo-slot" onclick="triggerUpload(8)" data-index="8"><i data-lucide="plus"></i></div>
+          <div class="photo-slot" onclick="triggerUpload(9)" data-index="9"><i data-lucide="plus"></i></div>
+        </div>
+        <input type="file" id="photo-input" hidden accept="image/*" />
+      </div>
+
+      <div class="profile-form">
+        <!-- CARD MISSIONÁRIO: Indique e Ganhe -->
+        <div class="mission-card animate-glow-soft">
+          <div class="mission-icon"><i data-lucide="megaphone" style="color:white;"></i></div>
+          <div class="mission-info">
+            <h4>Missão Evangelizadora</h4>
+            <p>Convide 3 amigos e ajude a nossa comunidade a crescer!</p>
+          </div>
+          <button class="btn-mission" onclick="shareCupido()">
+            Convidar <i data-lucide="share-2"></i>
+          </button>
+        </div>
+
+        <!-- Seção: Dados Básicos -->
+        <div class="profile-section">
+          <h3 class="section-title"><i data-lucide="user"></i> Dados Pessoais</h3>
+          <div class="form-grid">
+            <div class="field-item">
+              <label>Nome Completo</label>
+              <input type="text" id="p-full-name" class="input-styled" placeholder="Seu nome" />
+            </div>
+            <div class="field-item">
+              <label>Gênero</label>
+              <select id="p-gender" class="select-styled">
+                <option value="">Selecione...</option>
+                <option value="masculino">Masculino</option>
+                <option value="feminino">Feminino</option>
+              </select>
+            </div>
+            <div class="field-item">
+              <label>Data de Nascimento</label>
+              <input type="date" id="p-birth-date" class="input-styled" />
+            </div>
+            <div class="field-item">
+              <label>Cidade / Estado</label>
+              <input type="text" id="p-location" class="input-styled" placeholder="Ex: São Paulo, SP" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Seção: Vida Católica -->
+        <div class="profile-section">
+          <h3 class="section-title"><i data-lucide="cross"></i> Caminhada na Fé</h3>
+          <div class="form-grid">
+            <div class="field-item">
+              <label>Frequência na Santa Missa</label>
+              <select id="p-mass-freq" class="select-styled">
+                <option value="">Selecione...</option>
+                <option value="diaria">Diária</option>
+                <option value="semanal">Semanal</option>
+                <option value="esporadica">Esporádica</option>
+                <option value="tridentina">Apenas Missa Tridentina</option>
+              </select>
+            </div>
+            <div class="field-item">
+              <label>Sua Paróquia / Diocese</label>
+              <input type="text" id="p-parish" class="input-styled" placeholder="Nome da sua comunidade" />
+            </div>
+            <div class="field-item">
+              <label>Pastorais / Movimentos</label>
+              <input type="text" id="p-pastorais" class="input-styled" placeholder="Ex: RCC, Vicentinos, Coroinhas" />
+            </div>
+            <input type="hidden" id="p-is-premium" value="false" />
+            <div class="field-item">
+              <label>Santos de Devoção</label>
+              <div id="saints-tags" class="tags-input-container">
+                <!-- Tags serão inseridas aqui -->
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="p-saint-input" class="input-styled" placeholder="Ex: São Bento" style="flex: 1;" />
+                <button type="button" id="btn-add-saint" class="btn-primary" style="width: auto; padding: 0 15px; margin-top: 0;"><i data-lucide="plus"></i></button>
+              </div>
+            </div>
+            <div class="field-item">
+              <label>Sacramentos recebidos</label>
+              <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" name="sacraments" value="batismo"> Batismo</label>
+                <label class="checkbox-item"><input type="checkbox" name="sacraments" value="eucaristia"> Eucaristia</label>
+                <label class="checkbox-item"><input type="checkbox" name="sacraments" value="crisma"> Crisma</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seção: Matrimônio e Vocação -->
+        <div class="profile-section">
+          <h3 class="section-title"><i data-lucide="heart"></i> Relacionamento</h3>
+          <div class="form-grid">
+            <div class="field-item">
+              <label>Estado Civil</label>
+              <select id="p-civil-status" class="select-styled">
+                <option value="">Selecione...</option>
+                <option value="solteiro">Solteiro(a)</option>
+                <option value="viuvo">Viúvo(a)</option>
+                <option value="anulado">Possui Anulação Matrimonial</option>
+              </select>
+            </div>
+            <div class="field-item">
+              <label>O que busca?</label>
+              <select id="p-seeking" class="select-styled">
+                <option value="">Selecione...</option>
+                <option value="amizade">Amizade Cristã</option>
+                <option value="namoro">Namoro Santo</option>
+                <option value="matrimonio">Busca pelo Matrimônio</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seção: Bio e Virtudes -->
+        <div class="profile-section">
+          <h3 class="section-title"><i data-lucide="scroll"></i> Sobre minha Fé</h3>
+          <div class="form-grid">
+            <div class="field-item">
+              <label>Minha Bio de Fé</label>
+              <textarea id="p-bio" placeholder="Conte como sua fé guia sua busca..." style="width:100%; min-height:120px; padding:12px; border-radius:12px; border:1px solid var(--ivory-dark); resize:none;"></textarea>
+            </div>
+            <div class="field-item">
+              <label>Virtudes & Prioridades</label>
+              <div class="badges-selector">
+                <span class="badge-pill">Fé</span>
+                <span class="badge-pill">Família</span>
+                <span class="badge-pill">Castidade</span>
+                <span class="badge-pill">Caridade</span>
+                <span class="badge-pill">Moderação</span>
+                <span class="badge-pill">Terço Diário</span>
+                <span class="badge-pill">Missa Tridentina</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <button class="btn-primary" id="btn-save-profile" style="margin-top: 20px; width: 100%;">Salvar Perfil</button>
+      <button class="btn-secondary" onclick="console.log('Botão clicado no HTML'); window.resetMeusMatches();" style="margin-top: 20px; width: 100%; border-color: #720917; color: #720917;">Resetar minhas Curtidas (Teste)</button>
+      <button id="btn-logout" class="btn-danger" style="margin-top: 40px;" onclick="handleLogout()">Sair da Conta</button>
+    </main>
+
+    <!-- Match UI (Oculto por padrão) -->
+    <div id="match-modal" class="match-overlay match-overlay-epic hidden">
+      <div class="ray-of-light"></div>
+      <div class="heavenly-sparkles"></div>
+      
+      <div class="match-content" style="position:relative; z-index:10">
+        <div class="match-sparkles">✨🙏✨</div>
+        <h2 class="match-title" style="font-size: 38px;">Match Providencial!</h2>
+        <p class="match-subtitle">"O que Deus uniu, o homem não separa"</p>
+        
+        <div class="match-avatars match-avatars-epic">
+          <div id="match-user-avatar" class="match-avatar-wrapper match-avatar-div"></div>
+          <div class="match-heart"><i data-lucide="heart" style="width:40px; height:40px; fill:white"></i></div>
+          <div id="match-target-avatar" class="match-avatar-wrapper match-avatar-div"></div>
+        </div>
+
+        <!-- Seção de Oração -->
+        <div id="match-prayer-box" class="match-prayer-box hidden">
+          <p class="prayer-text">"Pai Nosso, que estais no céu... que esta união seja para a Vossa glória e santificação de nossas vidas. Amém."</p>
+          <p style="font-size: 11px; color: var(--gold-noble); margin-top: 8px;">Reze um Pai Nosso e uma Ave Maria antes de começar.</p>
+        </div>
+        
+        <div class="match-actions">
+          <button id="btn-show-prayer" class="btn-secondary" style="border-color: var(--gold-noble); color: var(--gold-noble); margin-bottom: 8px;" onclick="toggleMatchPrayer()">Rezar por este Match</button>
+          <button id="btn-match-chat" class="btn-primary" onclick="closeMatchModal()" style="background: var(--gold-noble); color: var(--catedral-red); box-shadow: 0 10px 20px rgba(0,0,0,0.3)">Iniciar Santa Conversa</button>
+          <button class="btn-secondary" onclick="closeMatchModal()" style="border-color: rgba(255,255,255,0.5); color: white;">Continuar em Oração</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters Modal -->
+    <div id="filters-modal" class="filters-modal hidden">
+      <div class="filters-content">
+        <header class="filters-header">
+          <h3>Filtros de Fé</h3>
+          <button class="close-btn" onclick="closeFilters()"><i data-lucide="x"></i></button>
+        </header>
+        <div class="filters-body">
+          <div class="filter-group">
+            <label>Distância Máxima: <span id="val-dist-max">50</span> km</label>
+            <input type="range" id="filter-dist-max" min="1" max="500" value="50" class="range-styled" oninput="document.getElementById('val-dist-max').innerText = this.value" />
+          </div>
+          <div class="filter-group">
+            <label>Idade Máxima: <span id="val-age-max">50</span> anos</label>
+            <input type="range" id="filter-age-max" min="18" max="80" value="50" class="range-styled" oninput="document.getElementById('val-age-max').innerText = this.value" />
+          </div>
+          <!-- MODO PEREGRINO (Premium) -->
+          <div class="filter-group" id="peregrino-section">
+            <label style="display:flex; align-items:center; gap:5px;">
+              Modo Peregrino (Mudar Local) <i data-lucide="map-pin" style="width:12px; color:var(--gold-noble)"></i>
+            </label>
+            <div style="display:flex; gap:8px;">
+              <input type="text" id="filter-location-search" class="input-styled" placeholder="Ex: Aparecida, SP" style="flex:1" />
+              <button class="btn-primary" onclick="searchLocation()" style="width:auto; padding:0 12px; margin:0;"><i data-lucide="search"></i></button>
+            </div>
+            <p id="location-current-display" style="font-size:11px; margin-top:5px; color:var(--text-muted);">Localização: Automática (GPS)</p>
+          </div>
+          <div class="filter-group">
+            <label>Estado Civil</label>
+            <select id="filter-civil-status" class="select-styled">
+              <option value="any">Qualquer</option>
+              <option value="solteiro">Apenas Solteiros</option>
+              <option value="viuvo">Apenas Viúvos</option>
+              <option value="anulado">Com Anulação</option>
+            </select>
+          </div>
+          <!-- Filtros Premium (Paróquia e Pastorais) -->
+          <div class="filter-group">
+            <label style="display:flex; align-items:center; gap:5px;">
+              Filtrar por Paróquia <i data-lucide="crown" style="width:12px; color:var(--gold-noble)"></i>
+            </label>
+            <input type="text" id="filter-parish" class="input-styled" placeholder="Ex: Matriz de S. Bento" />
+          </div>
+          <div class="filter-group">
+            <label style="display:flex; align-items:center; gap:5px;">
+              Filtrar por Pastorais <i data-lucide="crown" style="width:12px; color:var(--gold-noble)"></i>
+            </label>
+            <input type="text" id="filter-pastorais" class="input-styled" placeholder="Ex: RCC, Vicentinos" />
+          </div>
+          <p id="premium-filter-msg" style="font-size:10px; color:var(--gold-noble); margin-top:-10px; display:none;">
+            * Filtros marcados com <i data-lucide="crown" style="width:10px;"></i> requerem assinatura Premium.
+          </p>
+          <button class="btn-primary" onclick="applyFilters()" style="margin-top: 10px;">Aplicar Bênçãos</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Actions -->
+    <footer class="actions">
+      <button class="btn-circle btn-no" id="btn-swipe-no"><i data-lucide="x"></i></button>
+      <button class="btn-circle btn-super" id="btn-swipe-super"><i data-lucide="star"></i></button>
+      <button class="btn-circle btn-yes" id="btn-swipe-yes"><i data-lucide="heart"></i></button>
+      
+      <!-- Botão Voltar (Apenas no Perfil) -->
+      <button class="btn-circle btn-no hidden" id="btn-exit-profile" onclick="showView('discovery')">
+        <i data-lucide="arrow-left"></i>
+      </button>
+    </footer>
+  </div>
+
+  <!-- Animações Especiais -->
+  <div id="cupid-container" class="cupid-container">
+    <img src="assets/cupid.png" class="cupid-img" alt="Anjo Cupido" />
+  </div>
+  <div id="arrow-layer" class="arrow-layer"></div>
+
+  <!-- Recursos de Áudio -->
+  <audio id="sound-arrow" src="https://assets.mixkit.co/sfx/preview/mixkit-fast-sword-whoosh-2792.mp3" preload="auto"></audio>
+  <audio id="sound-magic" src="https://assets.mixkit.co/sfx/preview/mixkit-magic-sparkle-whoosh-2350.mp3" preload="auto"></audio>
+  <audio id="sound-super" src="https://assets.mixkit.co/sfx/preview/mixkit-heavenly-orchestra-shimmer-2070.mp3" preload="auto"></audio>
+  <audio id="sound-match" src="https://assets.mixkit.co/sfx/preview/mixkit-church-bell-ringing-632.mp3" preload="auto"></audio>
+  <audio id="sound-chant" src="https://www.gregorian-chant-hymns.com/mp3/a-solis-ortus.mp3" preload="auto"></audio>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Influenciadores | Cupido Católico</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --catedral-red: #720917;
+            --gold-noble: #D4AF37;
+            --text-main: #2C1810;
+            --bg-light: #FDFCF9;
+            --ivory: #F9F6EE;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-light); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 500px; border-top: 6px solid var(--catedral-red); }
+        header { text-align: center; margin-bottom: 30px; }
+        header h1 { color: var(--catedral-red); margin: 0; font-size: 24px; }
+        header p { font-size: 14px; opacity: 0.7; }
+        
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--catedral-red); }
+        .input-styled { width: 100%; padding: 12px; border: 2px solid #EEE; border-radius: 12px; box-sizing: border-box; font-size: 14px; transition: all 0.3s; }
+        .input-styled:focus { border-color: var(--gold-noble); outline: none; }
+        
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        .btn-save { width: 100%; background: var(--gold-noble); border: none; padding: 15px; border-radius: 12px; color: white; font-weight: 800; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; }
+        .btn-save:hover { background: #b08d2a; transform: translateY(-2px); }
+        
+        .link-preview { background: var(--ivory); padding: 10px; border-radius: 10px; margin-top: 5px; font-size: 11px; border: 1px dashed var(--gold-noble); color: var(--text-muted); word-break: break-all; }
+        .footer-nav { text-align: center; margin-top: 20px; }
+        .footer-nav a { color: var(--catedral-red); text-decoration: none; font-size: 13px; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <header>
+            <i data-lucide="users" style="color: var(--gold-noble); width: 40px; height: 40px; margin-bottom: 10px;"></i>
+            <h1>Novo Influenciador</h1>
+            <p>Cadastre um novo parceiro da Missão Evangelizadora</p>
+        </header>
+
+        <div class="form-group">
+            <label>Nome do Influenciador</label>
+            <input type="text" id="inf-name" class="input-styled" placeholder="Ex: Padre Marcelo Rossi" oninput="updateLinkPreview()">
+        </div>
+
+        <div class="form-group">
+            <label>Slug (Identificador na URL)</label>
+            <input type="text" id="inf-slug" class="input-styled" placeholder="Ex: padre-marcelo" oninput="updateLinkPreview()">
+            <div id="link-preview" class="link-preview">Link: cupidocatolico.com.br/?ref=</div>
+        </div>
+
+        <div class="form-group">
+            <label>Chave PIX de Repasse</label>
+            <input type="text" id="inf-pix" class="input-styled" placeholder="E-mail, CPF ou Aleatória">
+        </div>
+
+        <div class="form-group">
+            <label>Comissão (%)</label>
+            <input type="number" id="inf-commission" class="input-styled" value="10" min="0" max="100">
+        </div>
+
+        <button class="btn-save" id="btn-save-influencer" onclick="saveInfluencer()">
+            <i data-lucide="user-plus"></i> Confirmar Cadastro
+        </button>
+
+        <div class="footer-nav">
+            <a href="admin_influencers.html">← Abrir Relatório de Pagamentos</a>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://ahlgkhlnjcwmlbzfskoo.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFobGdraGxuamN3mxiemZza29vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MzA1NDQsImV4cCI6MjA4OTIwNjU0NH0.wfNUI0G9aFZuYat1qwg0muf8C-uV81b6PUj7CdMcJek';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        function updateLinkPreview() {
+            const slug = document.getElementById('inf-slug').value.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+            document.getElementById('inf-slug').value = slug;
+            document.getElementById('link-preview').innerText = `Link: cupidocatolico.com.br/?ref=${slug}`;
+        }
+
+        async function saveInfluencer() {
+            const name = document.getElementById('inf-name').value;
+            const slug = document.getElementById('inf-slug').value;
+            const pix = document.getElementById('inf-pix').value;
+            const commission = document.getElementById('inf-commission').value;
+            const btn = document.getElementById('btn-save-influencer');
+
+            if (!name || !slug || !pix) {
+                alert("Por favor, preencha o Nome, Slug e Chave PIX do parceiro! 🙏");
+                return;
+            }
+
+            try {
+                btn.disabled = true;
+                btn.innerText = "Registrando Missão...";
+
+                const { error } = await sb.from('influencers').insert({
+                    name: name,
+                    slug: slug,
+                    pix_key: pix,
+                    commission_pct: commission
+                });
+
+                if (error) {
+                    if (error.code === '23505') alert("Erro: Esse Slug (identificador) já está em uso por outro influenciador!");
+                    else throw error;
+                } else {
+                    alert(`Glória a Deus!\n\nInfluenciador ${name} cadastrado com sucesso e pronto para evangelizar! 🙏✨`);
+                    window.location.href = 'admin_influencers.html';
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("Erro ao cadastrar. Verifique se as permissões (RLS) estão corretas.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Confirmar Cadastro";
+            }
+        }
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
