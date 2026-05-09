@@ -163,7 +163,9 @@ document.addEventListener('DOMContentLoaded', () => {
     selectedPlan = { name, price };
     document.getElementById('selected-plan-name').innerText = name;
     document.getElementById('selected-plan-price').innerText = price.toFixed(2).replace('.', ',');
-    showViewManual('payment');
+    
+    // Agora após escolher o plano, vamos para o Cadastro
+    showViewManual('auth');
   };
 
   window.updateCardDisplay = () => {
@@ -176,15 +178,20 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('display-expiry').innerText = expiry;
   };
 
-  // Helper para alternar entre as novas telas sem quebrar o showView global
   window.showViewManual = (view) => {
     document.getElementById('plans-screen').classList.add('hidden');
     document.getElementById('payment-screen').classList.add('hidden');
     document.getElementById('auth-screen').classList.add('hidden');
+    const mainApp = document.getElementById('main-app');
+    if (mainApp) mainApp.classList.add('hidden');
     
     if (view === 'plans') document.getElementById('plans-screen').classList.remove('hidden');
     if (view === 'payment') document.getElementById('payment-screen').classList.remove('hidden');
     if (view === 'auth') document.getElementById('auth-screen').classList.remove('hidden');
+    if (view === 'app') {
+       if (mainApp) mainApp.classList.remove('hidden');
+       showMainApp();
+    }
     
     if (window.lucide) window.lucide.createIcons();
   };
@@ -200,16 +207,14 @@ document.addEventListener('DOMContentLoaded', () => {
       btnPay.innerText = "Processando Transação...";
       statusEl.classList.add('hidden');
 
-      // Simulação de delay de rede/processamento
       setTimeout(() => {
-        // Sucesso simulado (Sandbox)
-        statusEl.innerText = "✅ Pagamento Autorizado! Bem-vindo à nossa comunidade.";
+        statusEl.innerText = "✅ Cartão Confirmado pela Operadora!";
         statusEl.className = "payment-status success";
         statusEl.classList.remove('hidden');
 
         setTimeout(() => {
-          showViewManual('auth');
-          alert("🎉 Pagamento confirmado! Agora você pode criar sua conta e encontrar sua alma gêmea.");
+          // LIBERAÇÃO DO ACESSO
+          showViewManual('app');
         }, 1500);
       }, 2000);
     };
@@ -334,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
           btnLogin.innerText = "Entrar com Fé";
           btnLogin.disabled = false;
         } else {
-          showMainApp();
+          showViewManual('payment');
         }
       };
     }
@@ -366,8 +371,8 @@ document.addEventListener('DOMContentLoaded', () => {
           btnRegister.disabled = false;
         } else {
           // FEEDBACK SOLICITADO
-          alert("✉️ E-mail enviado! Enviamos um link de confirmação para o seu e-mail. Por favor, aprove seu cadastro lá para poder entrar.");
-          btnRegister.innerText = "E-mail enviado! Verifique sua caixa.";
+          alert("✉️ Conta criada! Agora vamos finalizar o seu acesso premium.");
+          showViewManual('payment');
         }
       };
     }
