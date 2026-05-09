@@ -1,0 +1,6 @@
+{
+  "appId": "com.cupidocatolico.app",
+  "appName": "Cupido Catolico",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
