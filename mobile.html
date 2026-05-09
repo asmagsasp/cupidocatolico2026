@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Cupido Católico | App</title>
+  
+  <!-- Fontes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  
+  <!-- Ícones (Lucide) e Supabase -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.6/lottie.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="mobile-version">
+
+  <!-- Splash Screen -->
+  <div id="splash" class="splash-screen">
+    <img src="assets/cupid.png" alt="Cupido" style="width: 150px; height: 150px; margin-bottom: 20px;" />
+    <img src="assets/logo.png" alt="Cupido Católico" class="splash-logo" style="width: 100px; height: 100px;" />
+  </div>
+
+  <!-- Auth Screen (Apenas Login para Mobile App) -->
+  <div id="auth-screen" class="auth-screen hidden">
+    <div class="auth-card">
+      <h2 class="auth-title">Bem-vindo de Volta</h2>
+      <p class="auth-subtitle">Entre com sua conta premium para continuar sua busca.</p>
+      
+      <div class="auth-form">
+        <div class="input-group">
+          <i data-lucide="mail"></i>
+          <input type="email" id="email" placeholder="Seu e-mail" />
+        </div>
+        <div class="input-group">
+          <i data-lucide="lock"></i>
+          <input type="password" id="password" placeholder="Sua senha" />
+          <button type="button" id="btn-toggle-password" class="password-toggle">
+            <i data-lucide="eye"></i>
+          </button>
+        </div>
+        
+        <div id="auth-error-msg" class="auth-error hidden"></div>
+
+        <button id="btn-login" class="btn-primary">Entrar com Fé</button>
+        
+        <div class="divider"></div>
+        
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">
+          Ainda não possui uma conta?<br>
+          As assinaturas são gerenciadas exclusivamente através do nosso site oficial.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-container hidden" id="main-app">
+    <!-- Header -->
+    <header class="header">
+      <button class="icon-btn" id="btn-goto-profile"><i data-lucide="user"></i></button>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <h1 class="logo-text" id="btn-goto-home" style="cursor:pointer">Cupido Católico</h1>
+        <button class="icon-btn-small" id="btn-open-filters"><i data-lucide="sliders-horizontal" style="width:16px;"></i></button>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="icon-btn" id="btn-goto-likes" style="position:relative">
+          <i data-lucide="heart"></i>
+          <span id="dot-likes" class="notification-dot hidden"></span>
+        </button>
+        <button class="icon-btn" id="btn-goto-messages" style="position:relative">
+          <i data-lucide="message-circle"></i>
+          <span id="dot-messages" class="notification-dot hidden"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- App Content (Discovery) -->
+    <main class="card-container view-section" id="discovery-view">
+      <div id="daily-saint-container"></div>
+    </main>
+
+    <!-- Outras views ocultas (Messages, Likes, Chat, Profile, etc) -->
+    <main class="messages-container view-section hidden" id="messages-view">
+      <div class="messages-header">
+        <h2 class="view-title">Conexões Providenciais</h2>
+      </div>
+      <div id="matches-list" class="matches-list"></div>
+    </main>
+
+    <main class="likes-container view-section hidden" id="likes-view">
+      <div class="messages-header" style="background: linear-gradient(135deg, var(--gold-noble) 0%, var(--catedral-red) 100%); color: white; padding: 25px;">
+        <h2 class="view-title" style="color:white">Almas Interessadas</h2>
+      </div>
+      <div id="likes-list" class="matches-list" style="padding: 20px;"></div>
+    </main>
+
+    <main class="chat-container view-section hidden" id="chat-view">
+      <header class="chat-header">
+        <button class="icon-btn" onclick="showView('messages')"><i data-lucide="arrow-left"></i></button>
+        <div class="chat-target-info">
+          <div id="identity-photo-chat-header" class="match-item-photo match-avatar-div"></div>
+          <h3 id="chat-target-name">...</h3>
+        </div>
+      </header>
+      <div id="chat-messages" class="chat-messages"></div>
+      <div class="chat-footer">
+        <textarea id="chat-input" placeholder="Escreva uma mensagem..." rows="1"></textarea>
+        <button id="btn-send-message" class="btn-send"><i data-lucide="send"></i></button>
+      </div>
+    </main>
+
+    <main class="profile-container view-section hidden" id="profile-view">
+      <div class="profile-edit-header">
+        <div id="user-avatar" class="match-avatar-div" style="width:120px; height:120px; border-radius:50%;"></div>
+        <h2 class="user-display-name">...</h2>
+      </div>
+      <button id="btn-logout" class="btn-danger" style="margin-top: 40px;" onclick="handleLogout()">Sair da Conta</button>
+    </main>
+
+    <footer class="actions">
+      <button class="btn-circle btn-no" id="btn-swipe-no"><i data-lucide="x"></i></button>
+      <button class="btn-circle btn-super" id="btn-swipe-super"><i data-lucide="star"></i></button>
+      <button class="btn-circle btn-yes" id="btn-swipe-yes"><i data-lucide="heart"></i></button>
+      <button class="btn-circle btn-no hidden" id="btn-exit-profile" onclick="showView('discovery')">
+        <i data-lucide="arrow-left"></i>
+      </button>
+    </footer>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/app.js"></script>
+</body>
+</html>

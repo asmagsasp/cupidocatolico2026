@@ -179,15 +179,15 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   window.showViewManual = (view) => {
-    document.getElementById('plans-screen').classList.add('hidden');
-    document.getElementById('payment-screen').classList.add('hidden');
-    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('plans-screen')?.classList.add('hidden');
+    document.getElementById('payment-screen')?.classList.add('hidden');
+    document.getElementById('auth-screen')?.classList.add('hidden');
     const mainApp = document.getElementById('main-app');
     if (mainApp) mainApp.classList.add('hidden');
     
-    if (view === 'plans') document.getElementById('plans-screen').classList.remove('hidden');
-    if (view === 'payment') document.getElementById('payment-screen').classList.remove('hidden');
-    if (view === 'auth') document.getElementById('auth-screen').classList.remove('hidden');
+    if (view === 'plans') document.getElementById('plans-screen')?.classList.remove('hidden');
+    if (view === 'payment') document.getElementById('payment-screen')?.classList.remove('hidden');
+    if (view === 'auth') document.getElementById('auth-screen')?.classList.remove('hidden');
     if (view === 'app') {
        if (mainApp) mainApp.classList.remove('hidden');
        showMainApp();
@@ -237,17 +237,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function checkSession() {
     if (!window.sb) return;
+    
+    // Detectar se estamos na versão mobile (App Nativo)
+    const isMobileVersion = window.location.pathname.includes('mobile.html');
+    const plansScreen = document.getElementById('plans-screen');
+
     try {
       const { data: { session }, error } = await window.sb.auth.getSession();
       if (session) {
         showMainApp();
       } else {
-        // Se não houver sessão, mostramos os planos primeiro
-        document.getElementById('plans-screen').classList.remove('hidden');
+        if (isMobileVersion) {
+          // No App Nativo, vamos direto para o Login
+          showViewManual('auth');
+        } else if (plansScreen) {
+          // Na Web, mostramos os planos primeiro
+          plansScreen.classList.remove('hidden');
+        } else {
+          // Fallback para garantir que algo apareça
+          showViewManual('auth');
+        }
         if (window.lucide) window.lucide.createIcons();
       }
     } catch (e) {
-      document.getElementById('plans-screen').classList.remove('hidden');
+      if (isMobileVersion) {
+        showViewManual('auth');
+      } else if (plansScreen) {
+        plansScreen.classList.remove('hidden');
+      }
       if (window.lucide) window.lucide.createIcons();
     }
   }
