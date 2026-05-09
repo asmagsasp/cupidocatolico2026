@@ -581,6 +581,322 @@ h1, h2, h3 {
   background: var(--ivory-dark);
 }
 
+/* ---- PLANS SCREEN ---- */
+.plans-screen {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, var(--catedral-red-dark) 0%, var(--catedral-red) 100%);
+  z-index: 9000;
+  overflow-y: auto;
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.plans-container {
+  width: 100%;
+  max-width: 1000px;
+  text-align: center;
+}
+
+.plans-header {
+  margin-bottom: 40px;
+  color: white;
+}
+
+.plans-title {
+  font-size: 36px;
+  color: var(--gold-noble);
+  margin-bottom: 12px;
+}
+
+.plans-subtitle {
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.plan-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24px;
+  padding: 40px 30px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.plan-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.plan-card.featured {
+  background: white;
+  border: 2px solid var(--gold-noble);
+  transform: scale(1.05);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+}
+
+.plan-card.featured:hover {
+  transform: scale(1.05) translateY(-5px);
+}
+
+.plan-badge {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.plan-badge-featured {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--gold-noble);
+  color: var(--catedral-red);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.plan-name {
+  font-size: 28px;
+  color: var(--catedral-red);
+  margin-bottom: 8px;
+}
+
+.plan-price {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.plan-price span {
+  font-size: 16px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.plan-total {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.plan-features {
+  list-style: none;
+  text-align: left;
+  margin-bottom: 32px;
+  flex-grow: 1;
+}
+
+.plan-features li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: var(--text-main);
+}
+
+.plan-features i {
+  color: #27ae60;
+  width: 18px;
+}
+
+.btn-plan {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: 2px solid var(--catedral-red);
+  background: transparent;
+  color: var(--catedral-red);
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-plan:hover {
+  background: var(--catedral-red);
+  color: var(--gold-noble);
+}
+
+.btn-plan.featured {
+  background: var(--catedral-red);
+  color: var(--gold-noble);
+  border: none;
+}
+
+.btn-plan.featured:hover {
+  background: var(--catedral-red-dark);
+}
+
+.plans-footer {
+  color: white;
+  opacity: 0.7;
+  font-size: 13px;
+}
+
+/* ---- PAYMENT SCREEN ---- */
+.payment-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--ivory);
+  z-index: 9100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.payment-card {
+  width: 100%;
+  max-width: 450px;
+  background: white;
+  padding: 40px 30px;
+  border-radius: 32px;
+  box-shadow: var(--shadow-deep);
+  position: relative;
+}
+
+.back-btn {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.payment-title {
+  font-size: 28px;
+  color: var(--catedral-red);
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.payment-subtitle {
+  text-align: center;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+}
+
+.credit-card-view {
+  background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+  height: 200px;
+  border-radius: 20px;
+  margin-bottom: 32px;
+  padding: 24px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.credit-card-view::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 100%;
+  height: 200%;
+  background: rgba(255,255,255,0.03);
+  transform: rotate(25deg);
+}
+
+.card-chip {
+  width: 45px;
+  height: 35px;
+  background: linear-gradient(135deg, #f0d060 0%, #d4af37 100%);
+  border-radius: 8px;
+}
+
+.card-number-display {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 22px;
+  letter-spacing: 2px;
+}
+
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.card-holder-display {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.card-expiry-display {
+  font-size: 14px;
+}
+
+.payment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.payment-status {
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.payment-status.success {
+  background: rgba(39, 174, 96, 0.1);
+  color: #27ae60;
+  border: 1px solid rgba(39, 174, 96, 0.2);
+}
+
+.payment-status.error {
+  background: rgba(192, 57, 43, 0.1);
+  color: #c0392b;
+  border: 1px solid rgba(192, 57, 43, 0.2);
+}
+
+.sandbox-badge {
+  text-align: center;
+  font-size: 11px;
+  color: var(--gold-noble);
+  font-weight: 700;
+  margin-top: 12px;
+  text-transform: uppercase;
+}
+
 /* ---- PROFILE SCREEN ---- */
 .profile-container {
   padding: 24px;

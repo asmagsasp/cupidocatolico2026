@@ -26,6 +26,104 @@
     <img src="assets/logo.png" alt="Cupido Católico" class="splash-logo" style="width: 100px; height: 100px;" />
   </div>
 
+  <!-- Plans Selection Screen -->
+  <div id="plans-screen" class="plans-screen hidden">
+    <div class="plans-container">
+      <div class="plans-header">
+        <h2 class="plans-title">Escolha sua Caminhada</h2>
+        <p class="plans-subtitle">Selecione o plano ideal para encontrar sua alma gêmea católica.</p>
+      </div>
+      
+      <div class="plans-grid">
+        <!-- Starter -->
+        <div class="plan-card" onclick="selectPlan('Starter', 49.90)">
+          <div class="plan-badge">Essencial</div>
+          <h3 class="plan-name">Starter</h3>
+          <div class="plan-price">R$ 49,90<span>/mês</span></div>
+          <ul class="plan-features">
+            <li><i data-lucide="check"></i> Ver quem te curtiu</li>
+            <li><i data-lucide="check"></i> Conversas ilimitadas</li>
+            <li><i data-lucide="check"></i> Filtros básicos</li>
+          </ul>
+          <button class="btn-plan">Selecionar</button>
+        </div>
+
+        <!-- Plus (Destaque) -->
+        <div class="plan-card featured" onclick="selectPlan('Plus', 119.70)">
+          <div class="plan-badge-featured">Mais Popular</div>
+          <h3 class="plan-name">Plus</h3>
+          <div class="plan-price">R$ 39,90<span>/mês</span></div>
+          <div class="plan-total">Total: R$ 119,70 (3 meses)</div>
+          <ul class="plan-features">
+            <li><i data-lucide="check"></i> Tudo do Starter</li>
+            <li><i data-lucide="check"></i> Modo Peregrino</li>
+            <li><i data-lucide="check"></i> Selo de Destaque</li>
+          </ul>
+          <button class="btn-plan featured">Escolher Plus</button>
+        </div>
+
+        <!-- Advanced -->
+        <div class="plan-card" onclick="selectPlan('Advanced', 238.80)">
+          <div class="plan-badge">Elite</div>
+          <h3 class="plan-name">Advanced</h3>
+          <div class="plan-price">R$ 19,90<span>/mês</span></div>
+          <div class="plan-total">Total: R$ 238,80 (1 ano)</div>
+          <ul class="plan-features">
+            <li><i data-lucide="check"></i> Tudo do Plus</li>
+            <li><i data-lucide="check"></i> Prioridade nas Buscas</li>
+            <li><i data-lucide="check"></i> Suporte VIP</li>
+          </ul>
+          <button class="btn-plan">Selecionar</button>
+        </div>
+      </div>
+      <p class="plans-footer">Pagamento 100% seguro via Cartão de Crédito</p>
+    </div>
+  </div>
+
+  <!-- Payment Screen (Sandbox) -->
+  <div id="payment-screen" class="payment-screen hidden">
+    <div class="payment-card">
+      <button class="back-btn" onclick="showViewManual('plans')"><i data-lucide="arrow-left"></i></button>
+      <h2 class="payment-title">Checkout Seguro</h2>
+      <p class="payment-subtitle">Plano selecionado: <strong id="selected-plan-name">...</strong></p>
+      
+      <div class="credit-card-view">
+        <div class="card-chip"></div>
+        <div class="card-number-display" id="display-number">•••• •••• •••• ••••</div>
+        <div class="card-bottom">
+          <div class="card-holder-display" id="display-name">NOME NO CARTÃO</div>
+          <div class="card-expiry-display" id="display-expiry">MM/AA</div>
+        </div>
+      </div>
+
+      <form id="payment-form" class="payment-form">
+        <div class="input-group">
+          <label>Nome no Cartão</label>
+          <input type="text" id="card-name" placeholder="Como no cartão" required oninput="updateCardDisplay()">
+        </div>
+        <div class="input-group">
+          <label>Número do Cartão</label>
+          <input type="text" id="card-number" placeholder="0000 0000 0000 0000" maxlength="19" required oninput="updateCardDisplay()">
+        </div>
+        <div class="grid-2">
+          <div class="input-group">
+            <label>Validade</label>
+            <input type="text" id="card-expiry" placeholder="MM/AA" maxlength="5" required oninput="updateCardDisplay()">
+          </div>
+          <div class="input-group">
+            <label>CVV</label>
+            <input type="text" id="card-cvv" placeholder="000" maxlength="3" required>
+          </div>
+        </div>
+        
+        <div id="payment-status" class="payment-status hidden"></div>
+        
+        <button type="submit" id="btn-pay" class="btn-primary">Confirmar Pagamento - R$ <span id="selected-plan-price">0,00</span></button>
+        <p class="sandbox-badge">Ambiente de Testes (Sandbox)</p>
+      </form>
+    </div>
+  </div>
+
   <!-- Auth Screen -->
   <div id="auth-screen" class="auth-screen hidden">
     <div class="auth-card">

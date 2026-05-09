@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const authScreen = document.getElementById('auth-screen');
   const mainApp = document.getElementById('main-app');
 
-  // Flows: Splash -> Auth/App
+  // Flows: Splash -> Plans -> Payment -> Auth/App
   setTimeout(() => {
     console.log("✨ Escondendo Splash...");
     if (splash) {
@@ -156,6 +156,65 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, 2500);
 
+  // --- PLANS & PAYMENT LOGIC ---
+  let selectedPlan = { name: '', price: 0 };
+
+  window.selectPlan = (name, price) => {
+    selectedPlan = { name, price };
+    document.getElementById('selected-plan-name').innerText = name;
+    document.getElementById('selected-plan-price').innerText = price.toFixed(2).replace('.', ',');
+    showViewManual('payment');
+  };
+
+  window.updateCardDisplay = () => {
+    const name = document.getElementById('card-name').value || 'NOME NO CARTÃO';
+    const number = document.getElementById('card-number').value || '•••• •••• •••• ••••';
+    const expiry = document.getElementById('card-expiry').value || 'MM/AA';
+
+    document.getElementById('display-name').innerText = name;
+    document.getElementById('display-number').innerText = number;
+    document.getElementById('display-expiry').innerText = expiry;
+  };
+
+  // Helper para alternar entre as novas telas sem quebrar o showView global
+  window.showViewManual = (view) => {
+    document.getElementById('plans-screen').classList.add('hidden');
+    document.getElementById('payment-screen').classList.add('hidden');
+    document.getElementById('auth-screen').classList.add('hidden');
+    
+    if (view === 'plans') document.getElementById('plans-screen').classList.remove('hidden');
+    if (view === 'payment') document.getElementById('payment-screen').classList.remove('hidden');
+    if (view === 'auth') document.getElementById('auth-screen').classList.remove('hidden');
+    
+    if (window.lucide) window.lucide.createIcons();
+  };
+
+  const paymentForm = document.getElementById('payment-form');
+  if (paymentForm) {
+    paymentForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const btnPay = document.getElementById('btn-pay');
+      const statusEl = document.getElementById('payment-status');
+      
+      btnPay.disabled = true;
+      btnPay.innerText = "Processando Transação...";
+      statusEl.classList.add('hidden');
+
+      // Simulação de delay de rede/processamento
+      setTimeout(() => {
+        // Sucesso simulado (Sandbox)
+        statusEl.innerText = "✅ Pagamento Autorizado! Bem-vindo à nossa comunidade.";
+        statusEl.className = "payment-status success";
+        statusEl.classList.remove('hidden');
+
+        setTimeout(() => {
+          showViewManual('auth');
+          alert("🎉 Pagamento confirmado! Agora você pode criar sua conta e encontrar sua alma gêmea.");
+        }, 1500);
+      }, 2000);
+    };
+  }
+
   async function checkSession() {
     if (!window.sb) return;
     try {
@@ -163,11 +222,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (session) {
         showMainApp();
       } else {
-        authScreen.classList.remove('hidden');
+        // Se não houver sessão, mostramos os planos primeiro
+        document.getElementById('plans-screen').classList.remove('hidden');
         if (window.lucide) window.lucide.createIcons();
       }
     } catch (e) {
-      authScreen.classList.remove('hidden');
+      document.getElementById('plans-screen').classList.remove('hidden');
       if (window.lucide) window.lucide.createIcons();
     }
   }
