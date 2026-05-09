@@ -207,7 +207,22 @@ document.addEventListener('DOMContentLoaded', () => {
       btnPay.innerText = "Processando Transação...";
       statusEl.classList.add('hidden');
 
-      setTimeout(() => {
+      setTimeout(async () => {
+        // --- INTEGRAÇÃO REAL COM SUPABASE (PERSISTÊNCIA) ---
+        try {
+          const { data: { user } } = await window.sb.auth.getUser();
+          if (user) {
+            const { error: updateError } = await window.sb
+              .from('profiles')
+              .update({ is_premium: true })
+              .eq('id', user.id);
+            
+            if (updateError) console.error("Erro ao atualizar status premium:", updateError);
+          }
+        } catch (err) {
+          console.error("Falha ao persistir status premium:", err);
+        }
+
         statusEl.innerText = "✅ Cartão Confirmado pela Operadora!";
         statusEl.className = "payment-status success";
         statusEl.classList.remove('hidden');
