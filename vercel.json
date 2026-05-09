@@ -1,6 +1,3 @@
 {
-  "buildCommand": null,
-  "outputDirectory": "www",
-  "cleanUrls": true,
-  "trailingSlash": false
+  "cleanUrls": true
 }
