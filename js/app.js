@@ -247,6 +247,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!window.sb) return;
     
     const plansScreen = document.getElementById('plans-screen');
+    const btnRegister = document.getElementById('btn-register');
+    const mobileNote = document.getElementById('mobile-note');
 
     try {
       const { data: { session }, error } = await window.sb.auth.getSession();
@@ -256,9 +258,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // REGRA: Se for Mobile ou App Nativo, NUNCA mostra planos. Vai direto pro Login.
         if (isMobile()) {
           showViewManual('auth');
+          // Esconde o botão de cadastro e mostra o aviso no mobile
+          if (btnRegister) btnRegister.classList.add('hidden');
+          if (mobileNote) mobileNote.classList.remove('hidden');
         } else if (plansScreen) {
           // Apenas Desktop vê a Landing Page de planos
           plansScreen.classList.remove('hidden');
+          if (btnRegister) btnRegister.classList.remove('hidden');
+          if (mobileNote) mobileNote.classList.add('hidden');
         } else {
           showViewManual('auth');
         }
@@ -267,6 +274,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {
       if (isMobile()) {
         showViewManual('auth');
+        if (btnRegister) btnRegister.classList.add('hidden');
+        if (mobileNote) mobileNote.classList.remove('hidden');
       } else if (plansScreen) {
         plansScreen.classList.remove('hidden');
       }
