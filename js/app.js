@@ -235,11 +235,17 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  // Helper para detectar se é celular ou versão mobile
+  const isMobile = () => {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    const isMobileUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    const isMobileFile = window.location.pathname.includes('mobile.html');
+    return isMobileUserAgent || isMobileFile;
+  };
+
   async function checkSession() {
     if (!window.sb) return;
     
-    // Detectar se estamos na versão mobile (App Nativo)
-    const isMobileVersion = window.location.pathname.includes('mobile.html');
     const plansScreen = document.getElementById('plans-screen');
 
     try {
@@ -247,20 +253,19 @@ document.addEventListener('DOMContentLoaded', () => {
       if (session) {
         showMainApp();
       } else {
-        if (isMobileVersion) {
-          // No App Nativo, vamos direto para o Login
+        // REGRA: Se for Mobile ou App Nativo, NUNCA mostra planos. Vai direto pro Login.
+        if (isMobile()) {
           showViewManual('auth');
         } else if (plansScreen) {
-          // Na Web, mostramos os planos primeiro
+          // Apenas Desktop vê a Landing Page de planos
           plansScreen.classList.remove('hidden');
         } else {
-          // Fallback para garantir que algo apareça
           showViewManual('auth');
         }
         if (window.lucide) window.lucide.createIcons();
       }
     } catch (e) {
-      if (isMobileVersion) {
+      if (isMobile()) {
         showViewManual('auth');
       } else if (plansScreen) {
         plansScreen.classList.remove('hidden');
