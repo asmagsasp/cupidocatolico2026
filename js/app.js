@@ -235,48 +235,26 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Helper para detectar se é celular ou versão mobile
-  const isMobile = () => {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    const isMobileUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-    const isMobileFile = window.location.pathname.includes('mobile.html');
-    return isMobileUserAgent || isMobileFile;
-  };
-
   async function checkSession() {
     if (!window.sb) return;
     
     const plansScreen = document.getElementById('plans-screen');
-    const btnRegister = document.getElementById('btn-register');
-    const mobileNote = document.getElementById('mobile-note');
 
     try {
       const { data: { session }, error } = await window.sb.auth.getSession();
       if (session) {
         showMainApp();
       } else {
-        // REGRA: Se for Mobile ou App Nativo, NUNCA mostra planos. Vai direto pro Login.
-        if (isMobile()) {
-          showViewManual('auth');
-          // Esconde o botão de cadastro e mostra o aviso no mobile
-          if (btnRegister) btnRegister.classList.add('hidden');
-          if (mobileNote) mobileNote.classList.remove('hidden');
-        } else if (plansScreen) {
-          // Apenas Desktop vê a Landing Page de planos
+        // Restaurado: Todos os usuários veem os planos primeiro (Desktop e Mobile)
+        if (plansScreen) {
           plansScreen.classList.remove('hidden');
-          if (btnRegister) btnRegister.classList.remove('hidden');
-          if (mobileNote) mobileNote.classList.add('hidden');
         } else {
           showViewManual('auth');
         }
         if (window.lucide) window.lucide.createIcons();
       }
     } catch (e) {
-      if (isMobile()) {
-        showViewManual('auth');
-        if (btnRegister) btnRegister.classList.add('hidden');
-        if (mobileNote) mobileNote.classList.remove('hidden');
-      } else if (plansScreen) {
+      if (plansScreen) {
         plansScreen.classList.remove('hidden');
       }
       if (window.lucide) window.lucide.createIcons();
