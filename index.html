@@ -34,46 +34,20 @@
         <p class="plans-subtitle">Selecione o plano ideal para encontrar sua alma gêmea católica.</p>
       </div>
       
-      <div class="plans-grid">
-        <!-- Starter -->
-        <div class="plan-card" onclick="selectPlan('Starter', 49.90)">
-          <div class="plan-badge">Essencial</div>
-          <h3 class="plan-name">Starter</h3>
-          <div class="plan-price">R$ 49,90<span>/mês</span></div>
+      <div class="plans-grid single-plan">
+        <!-- Plano Único de Experiência -->
+        <div class="plan-card featured" onclick="selectPlan('Plano de Experiência', 19.90)">
+          <div class="plan-badge-featured">Oferta de Boas-Vindas</div>
+          <h3 class="plan-name">Acesso Total</h3>
+          <div class="plan-price">R$ 19,90</div>
+          <div class="plan-total">Válido por 30 dias de experiência</div>
           <ul class="plan-features">
             <li><i data-lucide="check"></i> Ver quem te curtiu</li>
             <li><i data-lucide="check"></i> Conversas ilimitadas</li>
-            <li><i data-lucide="check"></i> Filtros básicos</li>
+            <li><i data-lucide="check"></i> Filtros de busca avançados</li>
+            <li><i data-lucide="check"></i> Selo de perfil verificado</li>
           </ul>
-          <button class="btn-plan">Selecionar</button>
-        </div>
-
-        <!-- Plus (Destaque) -->
-        <div class="plan-card featured" onclick="selectPlan('Plus', 119.70)">
-          <div class="plan-badge-featured">Mais Popular</div>
-          <h3 class="plan-name">Plus</h3>
-          <div class="plan-price">R$ 39,90<span>/mês</span></div>
-          <div class="plan-total">Total: R$ 119,70 (3 meses)</div>
-          <ul class="plan-features">
-            <li><i data-lucide="check"></i> Tudo do Starter</li>
-            <li><i data-lucide="check"></i> Modo Peregrino</li>
-            <li><i data-lucide="check"></i> Selo de Destaque</li>
-          </ul>
-          <button class="btn-plan featured">Escolher Plus</button>
-        </div>
-
-        <!-- Advanced -->
-        <div class="plan-card" onclick="selectPlan('Advanced', 238.80)">
-          <div class="plan-badge">Elite</div>
-          <h3 class="plan-name">Advanced</h3>
-          <div class="plan-price">R$ 19,90<span>/mês</span></div>
-          <div class="plan-total">Total: R$ 238,80 (1 ano)</div>
-          <ul class="plan-features">
-            <li><i data-lucide="check"></i> Tudo do Plus</li>
-            <li><i data-lucide="check"></i> Prioridade nas Buscas</li>
-            <li><i data-lucide="check"></i> Suporte VIP</li>
-          </ul>
-          <button class="btn-plan">Selecionar</button>
+          <button class="btn-plan featured">Experimentar por 30 dias</button>
         </div>
       </div>
       <p class="plans-footer">Pagamento 100% seguro via Cartão de Crédito</p>
