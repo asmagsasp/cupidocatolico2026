@@ -1771,56 +1771,160 @@ h1, h2, h3 {
   to { transform: translateX(0); opacity: 1; }
 }
 
-.premium-banner {
-  margin: 15px 20px;
-  background: linear-gradient(135deg, var(--catedral-red) 0%, #4a060f 100%);
-  border-radius: 20px;
-  padding: 16px;
-  cursor: pointer;
-  box-shadow: 0 8px 20px rgba(114, 9, 23, 0.2);
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  transition: all 0.3s ease;
+/* ---- CARD DE DOAÇÃO ESPONTÂNEA VIA PIX ---- */
+.pix-donation-card {
+  margin: 15px 20px 25px 20px;
+  background: linear-gradient(145deg, #720917 0%, #4a060f 100%);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 22px;
+  padding: 20px;
+  color: white;
+  box-shadow: 0 10px 25px rgba(114, 9, 23, 0.25), 0 0 15px rgba(212, 175, 55, 0.1);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.premium-banner:active {
-  transform: scale(0.97);
+.pix-donation-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(114, 9, 23, 0.3), 0 0 20px rgba(212, 175, 55, 0.2);
 }
 
-.premium-content {
+.pix-card-header {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 14px;
+  margin-bottom: 12px;
 }
 
-.premium-icon {
-  width: 45px;
-  height: 45px;
-  background: var(--gold-noble);
-  border-radius: 12px;
+.pix-icon-badge {
+  width: 46px;
+  height: 46px;
+  background: linear-gradient(135deg, var(--gold-noble) 0%, #b89020 100%);
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.35);
 }
 
-.premium-text h4 {
+.pix-header-text {
+  flex: 1;
+}
+
+.pix-tag {
+  display: inline-block;
+  background: rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.5);
   color: var(--gold-light);
-  font-size: 16px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 3px;
+}
+
+.pix-header-text h4 {
+  color: #FFF;
+  font-size: 17px;
   margin: 0;
   font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  letter-spacing: 0.2px;
 }
 
-.premium-text p {
-  color: rgba(255, 255, 255, 0.8);
+.pix-description {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 12.5px;
+  line-height: 1.45;
+  margin-bottom: 16px;
+}
+
+.pix-key-box {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px dashed rgba(212, 175, 55, 0.45);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.pix-key-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pix-key-label {
+  font-size: 10px;
+  color: var(--gold-light);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pix-key-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #FFF;
+  font-family: 'Inter', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-copy-pix {
+  background: linear-gradient(135deg, var(--gold-noble) 0%, #b89020 100%);
+  color: #2C1810;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.btn-copy-pix:hover {
+  transform: scale(1.04);
+  background: linear-gradient(135deg, #F1E5AC 0%, var(--gold-noble) 100%);
+}
+
+.btn-copy-pix:active {
+  transform: scale(0.96);
+}
+
+.btn-copy-pix.copied {
+  background: #22C55E;
+  color: white;
+}
+
+.pix-footer-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 11px;
-  margin: 0;
+  color: var(--gold-light);
+  opacity: 0.9;
+  font-style: italic;
 }
 
-.arrow-icon {
-  margin-left: auto;
-  color: var(--gold-noble);
-  opacity: 0.7;
+.pix-footer-note i {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
 }
 
 .notification-dot {

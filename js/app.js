@@ -157,26 +157,61 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 2500);
 
   // --- PLANS & PAYMENT LOGIC ---
-  let selectedPlan = { name: '', price: 0 };
-
-  window.selectPlan = (name, price) => {
-    selectedPlan = { name, price };
-    document.getElementById('selected-plan-name').innerText = name;
-    document.getElementById('selected-plan-price').innerText = price.toFixed(2).replace('.', ',');
+  // --- PIX DONATION HELPER ---
+  window.copyPixKey = function() {
+    const pixKey = document.getElementById('pix-key-text')?.innerText || 'contato@cupidocatolico.com.br';
     
-    // Agora após escolher o plano, vamos para o Cadastro
-    showViewManual('auth');
+    const showSuccessFeedback = () => {
+      const btn = document.getElementById('btn-copy-pix');
+      if (btn) {
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = `<i data-lucide="check"></i> <span>Chave Copiada!</span>`;
+        btn.classList.add('copied');
+        if (window.lucide) window.lucide.createIcons();
+        
+        if (typeof confetti === 'function') {
+          confetti({
+            particleCount: 60,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#D4AF37', '#720917', '#22C55E']
+          });
+        }
+        
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.classList.remove('copied');
+          if (window.lucide) window.lucide.createIcons();
+        }, 3000);
+      }
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(pixKey).then(showSuccessFeedback).catch(() => {
+        fallbackCopyText(pixKey, showSuccessFeedback);
+      });
+    } else {
+      fallbackCopyText(pixKey, showSuccessFeedback);
+    }
   };
 
-  window.updateCardDisplay = () => {
-    const name = document.getElementById('card-name').value || 'NOME NO CARTÃO';
-    const number = document.getElementById('card-number').value || '•••• •••• •••• ••••';
-    const expiry = document.getElementById('card-expiry').value || 'MM/AA';
-
-    document.getElementById('display-name').innerText = name;
-    document.getElementById('display-number').innerText = number;
-    document.getElementById('display-expiry').innerText = expiry;
-  };
+  function fallbackCopyText(text, callback) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      if (callback) callback();
+      else alert("Chave PIX copiada com sucesso! Deus abençoe 🙏");
+    } catch (err) {
+      alert("Chave PIX: " + text);
+    }
+    document.body.removeChild(textArea);
+  }
 
   window.showViewManual = (view) => {
     document.getElementById('plans-screen')?.classList.add('hidden');
@@ -185,8 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainApp = document.getElementById('main-app');
     if (mainApp) mainApp.classList.add('hidden');
     
-    if (view === 'plans') document.getElementById('plans-screen')?.classList.remove('hidden');
-    if (view === 'payment') document.getElementById('payment-screen')?.classList.remove('hidden');
     if (view === 'auth') document.getElementById('auth-screen')?.classList.remove('hidden');
     if (view === 'app') {
        if (mainApp) mainApp.classList.remove('hidden');
@@ -196,67 +229,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.lucide) window.lucide.createIcons();
   };
 
-  const paymentForm = document.getElementById('payment-form');
-  if (paymentForm) {
-    paymentForm.onsubmit = async (e) => {
-      e.preventDefault();
-      const btnPay = document.getElementById('btn-pay');
-      const statusEl = document.getElementById('payment-status');
-      
-      btnPay.disabled = true;
-      btnPay.innerText = "Processando Transação...";
-      statusEl.classList.add('hidden');
-
-      setTimeout(async () => {
-        // --- INTEGRAÇÃO REAL COM SUPABASE (PERSISTÊNCIA) ---
-        try {
-          const { data: { user } } = await window.sb.auth.getUser();
-          if (user) {
-            const { error: updateError } = await window.sb
-              .from('profiles')
-              .update({ is_premium: true })
-              .eq('id', user.id);
-            
-            if (updateError) console.error("Erro ao atualizar status premium:", updateError);
-          }
-        } catch (err) {
-          console.error("Falha ao persistir status premium:", err);
-        }
-
-        statusEl.innerText = "✅ Cartão Confirmado pela Operadora!";
-        statusEl.className = "payment-status success";
-        statusEl.classList.remove('hidden');
-
-        setTimeout(() => {
-          // LIBERAÇÃO DO ACESSO
-          showViewManual('app');
-        }, 1500);
-      }, 2000);
-    };
-  }
-
   async function checkSession() {
     if (!window.sb) return;
     
-    const plansScreen = document.getElementById('plans-screen');
-
     try {
       const { data: { session }, error } = await window.sb.auth.getSession();
       if (session) {
         showMainApp();
       } else {
-        // Restaurado: Todos os usuários veem os planos primeiro (Desktop e Mobile)
-        if (plansScreen) {
-          plansScreen.classList.remove('hidden');
-        } else {
-          showViewManual('auth');
-        }
+        showViewManual('auth');
         if (window.lucide) window.lucide.createIcons();
       }
     } catch (e) {
-      if (plansScreen) {
-        plansScreen.classList.remove('hidden');
-      }
+      showViewManual('auth');
       if (window.lucide) window.lucide.createIcons();
     }
   }
@@ -394,9 +379,9 @@ document.addEventListener('DOMContentLoaded', () => {
           btnRegister.innerText = "Criar conta nova";
           btnRegister.disabled = false;
         } else {
-          // FEEDBACK SOLICITADO
-          alert("✉️ Conta criada! Agora vamos finalizar o seu acesso premium.");
-          showViewManual('payment');
+          // FEEDBACK SOLICITADO - ACESSO TOTAL PARA TODOS
+          alert("✉️ Conta criada com sucesso! Seja bem-vindo ao Cupido Católico. 🙏");
+          showViewManual('app');
         }
       };
     }
@@ -796,10 +781,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Buscar perfis dessas pessoas
     const { data: profiles } = await window.sb.from('profiles').select('*').in('id', fanIds);
     
-    // 3. Checar se EU sou soberano (Premium)
-    const { data: myProfile } = await window.sb.from('profiles').select('is_premium').eq('id', user.id).single();
-    const isPremium = myProfile?.is_premium || false;
-
+    // 3. Acesso Completo Liberado (Todos os fiéis têm acesso)
+    const isPremium = true;
     renderLikes(profiles || [], isPremium);
   }
 
@@ -813,17 +796,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     list.innerHTML = profiles.map(p => {
-      const name = isPremium ? (p.full_name || p.nome || "Fiel") : "Assinante Premium";
+      const name = p.full_name || p.nome || "Fiel";
       return `
-        <div class="match-item" onclick="${isPremium ? `openChat('${p.id}')` : `window.location.href='billing.html'`}">
+        <div class="match-item" onclick="openChat('${p.id}')">
           <div style="position:relative">
-            <div id="like-avatar-${p.id}" class="match-item-photo match-avatar-div ${isPremium ? '' : 'blur-premium'}"></div>
+            <div id="like-avatar-${p.id}" class="match-item-photo match-avatar-div"></div>
           </div>
           <div class="match-item-info">
             <h4 class="match-item-name">${name}</h4>
-            <p class="match-item-preview">${isPremium ? 'Clique para iniciar conversa' : 'Assine para ver quem é'}</p>
+            <p class="match-item-preview">Clique para iniciar conversa</p>
           </div>
-          <i data-lucide="${isPremium ? 'message-circle' : 'lock'}" style="width:16px; opacity:0.5"></i>
+          <i data-lucide="message-circle" style="width:16px; opacity:0.5"></i>
         </div>
       `;
     }).join('');
@@ -1172,20 +1155,12 @@ document.addEventListener('DOMContentLoaded', () => {
           setAvatarInDiv(document.getElementById('user-avatar'), data.avatar_url, data.full_name || "Eu");
         }
 
-        // ✨ DINÂMICA PREMIUM: Esconde o banner e mostra o selo VIP
-        const premiumBanner = document.querySelector('.premium-banner');
+        // ✨ Selo de Membro Ativo e Borda Dourada para todos os fiéis
         const premiumBadge = document.getElementById('premium-badge-profile');
         const userAvatar = document.getElementById('user-avatar');
 
-        if (data.is_premium) {
-          if (premiumBanner) premiumBanner.style.display = 'none';
-          if (premiumBadge) premiumBadge.classList.remove('hidden');
-          if (userAvatar) userAvatar.classList.add('premium-glow-border');
-        } else {
-          if (premiumBanner) premiumBanner.style.display = 'block';
-          if (premiumBadge) premiumBadge.classList.add('hidden');
-          if (userAvatar) userAvatar.classList.remove('premium-glow-border');
-        }
+        if (premiumBadge) premiumBadge.classList.remove('hidden');
+        if (userAvatar) userAvatar.classList.add('premium-glow-border');
       }
     } catch (e) {
       console.error("Erro ao buscar perfil:", e);
@@ -1356,14 +1331,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.searchLocation = async () => {
     const query = document.getElementById('filter-location-search').value;
     if (!query) return;
-
-    // Check Premium
-    const { data: profile } = await window.sb.from('profiles').select('is_premium').eq('id', currentUser.id).single();
-    if (!profile?.is_premium) {
-      alert("A mudança de localização é uma função Premium! 👑\nAssine agora para viajar pelo mundo do Cupido Católico.");
-      window.location.href = 'billing.html';
-      return;
-    }
 
     try {
       const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`);

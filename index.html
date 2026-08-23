@@ -225,17 +225,31 @@
         </div>
       </div>
 
-      <!-- Banner Premium Estilo Netflix -->
-      <div class="premium-banner" onclick="window.location.href='billing.html'">
-        <div class="premium-content">
-          <div class="premium-icon">
-            <i data-lucide="crown"></i>
+      <!-- Card Doação Espontânea via PIX (Apoie nossa Missão) -->
+      <div class="pix-donation-card">
+        <div class="pix-card-header">
+          <div class="pix-icon-badge">
+            <i data-lucide="heart-handshake"></i>
           </div>
-          <div class="premium-text">
-            <h4>Seja Premium</h4>
-            <p>Veja quem te curtiu e mude sua vida amorosa!</p>
+          <div class="pix-header-text">
+            <span class="pix-tag">Projeto 100% Gratuito</span>
+            <h4>Apoie Nossa Missão</h4>
           </div>
-          <i data-lucide="chevron-right" class="arrow-icon"></i>
+        </div>
+        <p class="pix-description">
+          O Cupido Católico é gratuito e mantido por doações da comunidade. Se este projeto ajuda sua caminhada e você deseja apoiar a manutenção dos servidores, faça uma doação espontânea de qualquer valor via PIX:
+        </p>
+        <div class="pix-key-box">
+          <div class="pix-key-info">
+            <span class="pix-key-label">Chave PIX (E-mail):</span>
+            <span class="pix-key-value" id="pix-key-text">contato@cupidocatolico.com.br</span>
+          </div>
+          <button type="button" class="btn-copy-pix" id="btn-copy-pix" onclick="copyPixKey()">
+            <i data-lucide="copy"></i> <span>Copiar Chave</span>
+          </button>
+        </div>
+        <div class="pix-footer-note">
+          <i data-lucide="sparkles"></i> <span>Que Deus retribua em bênçãos e vocação a sua generosidade! 🙏</span>
         </div>
       </div>
 
@@ -462,22 +476,19 @@
               <option value="anulado">Com Anulação</option>
             </select>
           </div>
-          <!-- Filtros Premium (Paróquia e Pastorais) -->
+          <!-- Filtros de Paróquia e Pastorais (Liberados) -->
           <div class="filter-group">
             <label style="display:flex; align-items:center; gap:5px;">
-              Filtrar por Paróquia <i data-lucide="crown" style="width:12px; color:var(--gold-noble)"></i>
+              Filtrar por Paróquia <i data-lucide="church" style="width:14px; color:var(--gold-noble)"></i>
             </label>
             <input type="text" id="filter-parish" class="input-styled" placeholder="Ex: Matriz de S. Bento" />
           </div>
           <div class="filter-group">
             <label style="display:flex; align-items:center; gap:5px;">
-              Filtrar por Pastorais <i data-lucide="crown" style="width:12px; color:var(--gold-noble)"></i>
+              Filtrar por Pastorais <i data-lucide="users" style="width:14px; color:var(--gold-noble)"></i>
             </label>
             <input type="text" id="filter-pastorais" class="input-styled" placeholder="Ex: RCC, Vicentinos" />
           </div>
-          <p id="premium-filter-msg" style="font-size:10px; color:var(--gold-noble); margin-top:-10px; display:none;">
-            * Filtros marcados com <i data-lucide="crown" style="width:10px;"></i> requerem assinatura Premium.
-          </p>
           <button class="btn-primary" onclick="applyFilters()" style="margin-top: 10px;">Aplicar Bênçãos</button>
         </div>
       </div>
